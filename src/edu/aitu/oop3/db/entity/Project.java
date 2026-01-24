@@ -6,7 +6,7 @@ public class Project {
     private Long id;
     private String title;
     private String description;
-    private Long ownerId;          // user_id в БД
+    private Long ownerId;
     private LocalDateTime createdAt;
 
     public Project() { }

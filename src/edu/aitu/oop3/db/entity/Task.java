@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public class Task {
     private Long id;
-    private Long projectId;          // project_id в БД (обязательно!)
+    private Long projectId;
     private String title;
     private String description;
     private TaskStatus status;
