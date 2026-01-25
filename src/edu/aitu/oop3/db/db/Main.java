@@ -6,9 +6,9 @@ public class Main {
     public static void main(String[] args) {
 
         IDatabase database = new SupabaseDatabase(
-                "jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require",
-                "postgres.xouujdmgcoflekqlgqwm",
-                "bainazarproject"
+                System.getenv("DB_URL"),
+                System.getenv("DB_USER"),
+                System.getenv("DB_PASSWORD")
         );
 
         try (Connection c = database.getConnection()) {
