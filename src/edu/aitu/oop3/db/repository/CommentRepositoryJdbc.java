@@ -3,7 +3,11 @@ package edu.aitu.oop3.db.repository;
 import edu.aitu.oop3.db.db.IDatabase;
 import edu.aitu.oop3.db.entity.Comment;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +34,16 @@ public class CommentRepositoryJdbc implements CommentRepository {
             ps.setLong(2, comment.getUserId());
             ps.setString(3, comment.getText());
 
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                comment.setId(rs.getLong("id"));
-                Timestamp createdAt = rs.getTimestamp("created_at");
-                comment.setCreatedAt(createdAt == null ? null : createdAt.toLocalDateTime());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    comment.setId(rs.getLong("id"));
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    comment.setCreatedAt(
+                            createdAt == null ? null : createdAt.toLocalDateTime()
+                    );
+                }
             }
+
             return comment;
 
         } catch (SQLException e) {
@@ -52,18 +60,20 @@ public class CommentRepositoryJdbc implements CommentRepository {
              PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setLong(1, taskId);
-            ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                Timestamp createdAt = rs.getTimestamp("created_at");
-                comments.add(new Comment(
-                        rs.getLong("id"),
-                        rs.getLong("task_id"),
-                        rs.getLong("user_id"),
-                        rs.getString("text"),
-                        createdAt == null ? null : createdAt.toLocalDateTime()
-                ));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    comments.add(new Comment(
+                            rs.getLong("id"),
+                            rs.getLong("task_id"),
+                            rs.getLong("user_id"),
+                            rs.getString("text"),
+                            createdAt == null ? null : createdAt.toLocalDateTime()
+                    ));
+                }
             }
+
             return comments;
 
         } catch (SQLException e) {

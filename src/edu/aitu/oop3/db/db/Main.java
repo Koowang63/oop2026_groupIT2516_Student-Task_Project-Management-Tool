@@ -1,6 +1,8 @@
 package edu.aitu.oop3.db.db;
 
-import java.sql.Connection;
+import edu.aitu.oop3.db.controller.AppController;
+import edu.aitu.oop3.db.repository.*;
+import edu.aitu.oop3.db.service.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,10 +13,23 @@ public class Main {
                 System.getenv("DB_PASSWORD")
         );
 
-        try (Connection c = database.getConnection()) {
-            System.out.println("CONNECTED Architecture OK");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        UserRepository userRepository = new UserRepositoryJdbc(database);
+        ProjectRepository projectRepository = new ProjectRepositoryJdbc(database);
+        TaskRepository taskRepository = new TaskRepositoryJdbc(database);
+        CommentRepository commentRepository = new CommentRepositoryJdbc(database);
+
+        UserService userService = new UserService(userRepository);
+        ProjectService projectService = new ProjectService(projectRepository);
+        TaskService taskService = new TaskService(taskRepository, projectRepository);
+        CommentService commentService = new CommentService(commentRepository);
+
+        AppController controller = new AppController(
+                userService,
+                projectService,
+                taskService,
+                commentService
+        );
+
+        controller.run();
     }
 }

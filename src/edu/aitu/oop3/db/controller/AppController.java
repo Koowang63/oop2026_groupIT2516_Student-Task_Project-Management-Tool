@@ -1,6 +1,7 @@
 package edu.aitu.oop3.db.controller;
 
 import edu.aitu.oop3.db.entity.TaskStatus;
+import edu.aitu.oop3.db.service.CommentService;
 import edu.aitu.oop3.db.service.ProjectService;
 import edu.aitu.oop3.db.service.TaskService;
 import edu.aitu.oop3.db.service.UserService;
@@ -13,11 +14,13 @@ public class AppController {
     private final UserService userService;
     private final ProjectService projectService;
     private final TaskService taskService;
+    private final CommentService commentService;
 
-    public AppController(UserService userService, ProjectService projectService, TaskService taskService) {
+    public AppController(UserService userService, ProjectService projectService, TaskService taskService, CommentService commentService) {
         this.userService = userService;
         this.projectService = projectService;
         this.taskService = taskService;
+        this.commentService = commentService;
     }
 
     public void run() {
@@ -28,7 +31,8 @@ public class AppController {
             System.out.println("2) Create project");
             System.out.println("3) Add task");
             System.out.println("4) Change task status");
-            System.out.println("5) Exit");
+            System.out.println("5) Add comment");
+            System.out.println("6) Exit");
             System.out.print("> ");
 
             String choice = sc.nextLine();
@@ -67,6 +71,14 @@ public class AppController {
                     taskService.changeStatus(taskId, newStatus);
                     System.out.println("OK");
                 } else if ("5".equals(choice)) {
+                    System.out.print("TaskId: ");
+                    Long taskId = Long.parseLong(sc.nextLine());
+                    System.out.print("UserId: ");
+                    Long userId = Long.parseLong(sc.nextLine());
+                    System.out.print("Text: ");
+                    String text = sc.nextLine();
+                    System.out.println(commentService.addComment(taskId, userId, text));
+                } else if ("6".equals(choice)) {
                     return;
                 }
             } catch (Exception e) {
