@@ -14,6 +14,12 @@ public class UserService {
     }
 
     public User createUser(String name, String email) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("name cannot be empty");
+        }
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("email cannot be empty");
+        }
         return userRepository.save(new User(name, email));
     }
 

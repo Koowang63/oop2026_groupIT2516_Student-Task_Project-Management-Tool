@@ -14,6 +14,12 @@ public class ProjectService {
     }
 
     public Project createProject(String title, String description, Long ownerId) {
+        if (ownerId == null) {
+            throw new IllegalArgumentException("ownerId cannot be null");
+        }
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("title cannot be empty");
+        }
         return projectRepository.save(new Project(title, description, ownerId));
     }
 
