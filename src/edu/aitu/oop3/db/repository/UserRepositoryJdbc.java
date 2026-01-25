@@ -30,12 +30,14 @@ public class UserRepositoryJdbc implements UserRepository {
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
 
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                user.setId(rs.getLong("id"));
-                Timestamp createdAt = rs.getTimestamp("created_at");
-                user.setCreatedAt(createdAt == null ? null : createdAt.toLocalDateTime());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    user.setId(rs.getLong("id"));
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    user.setCreatedAt(createdAt == null ? null : createdAt.toLocalDateTime());
+                }
             }
+
             return user;
 
         } catch (SQLException e) {
@@ -51,19 +53,20 @@ public class UserRepositoryJdbc implements UserRepository {
              PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setLong(1, id);
-            ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                Timestamp createdAt = rs.getTimestamp("created_at");
-                User user = new User(
-                        rs.getLong("id"),
-                        rs.getString("name"),
-                        rs.getString("email"),
-                        createdAt == null ? null : createdAt.toLocalDateTime()
-                );
-                return Optional.of(user);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    User user = new User(
+                            rs.getLong("id"),
+                            rs.getString("name"),
+                            rs.getString("email"),
+                            createdAt == null ? null : createdAt.toLocalDateTime()
+                    );
+                    return Optional.of(user);
+                }
+                return Optional.empty();
             }
-            return Optional.empty();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -88,10 +91,10 @@ public class UserRepositoryJdbc implements UserRepository {
                         createdAt == null ? null : createdAt.toLocalDateTime()
                 ));
             }
-            return users;
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return users;
     }
 }
