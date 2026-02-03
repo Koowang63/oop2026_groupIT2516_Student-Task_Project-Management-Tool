@@ -1,30 +1,34 @@
 package edu.aitu.oop3.db.db;
 
 import edu.aitu.oop3.db.controller.AppController;
-import edu.aitu.oop3.db.repository.*;
-import edu.aitu.oop3.db.service.*;
+import edu.aitu.oop3.db.db.IDatabase;
+import edu.aitu.oop3.db.db.SupabaseDatabase;
+import edu.aitu.oop3.db.repository.CommentRepository;
+import edu.aitu.oop3.db.repository.CommentRepositoryJdbc;
+import edu.aitu.oop3.db.repository.ProjectRepository;
+import edu.aitu.oop3.db.repository.ProjectRepositoryJdbc;
+import edu.aitu.oop3.db.repository.TaskRepository;
+import edu.aitu.oop3.db.repository.TaskRepositoryJdbc;
+import edu.aitu.oop3.db.repository.UserRepository;
+import edu.aitu.oop3.db.repository.UserRepositoryJdbc;
+import edu.aitu.oop3.db.service.ProjectService;
+import edu.aitu.oop3.db.service.TaskService;
+import edu.aitu.oop3.db.service.UserService;
 
 public class Main {
-
     public static void main(String[] args) {
-
         IDatabase database = new SupabaseDatabase();
 
-        UserRepository userRepository = new UserRepositoryJdbc(database);
-        ProjectRepository projectRepository = new ProjectRepositoryJdbc(database);
-        TaskRepository taskRepository = new TaskRepositoryJdbc(database);
-        CommentRepository commentRepository = new CommentRepositoryJdbc(database);
+        UserRepository userRepo = new UserRepositoryJdbc(database);
+        ProjectRepository projectRepo = new ProjectRepositoryJdbc(database);
+        TaskRepository taskRepo = new TaskRepositoryJdbc(database);
+        CommentRepository commentRepo = new CommentRepositoryJdbc(database);
 
-        UserService userService = new UserService(userRepository);
-        ProjectService projectService = new ProjectService(projectRepository);
-        TaskService taskService = new TaskService(taskRepository, projectRepository);
+        UserService userService = new UserService(userRepo);
+        ProjectService projectService = new ProjectService(projectRepo);
+        TaskService taskService = new TaskService(taskRepo, projectRepo);
 
-        AppController controller = new AppController(
-                userService,
-                projectService,
-                taskService
-        );
-
-        controller.run();
+        AppController app = new AppController(userService, projectService, taskService);
+        app.run();
     }
 }
