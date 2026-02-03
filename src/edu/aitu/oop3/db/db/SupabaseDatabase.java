@@ -10,6 +10,13 @@ public class SupabaseDatabase implements IDatabase {
     private final String user;
     private final String password;
 
+    public SupabaseDatabase() {
+        DatabaseConfig cfg = DatabaseConfig.getInstance();
+        this.url = cfg.getUrl();
+        this.user = cfg.getUser();
+        this.password = cfg.getPassword();
+    }
+
     public SupabaseDatabase(String url, String user, String password) {
         this.url = url;
         this.user = user;
