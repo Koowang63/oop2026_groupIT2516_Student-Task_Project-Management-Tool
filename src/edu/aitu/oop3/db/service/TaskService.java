@@ -95,7 +95,6 @@ public class TaskService {
 
     public Task addTaskFromTemplate(TaskTemplateType type, Long projectId, String title) {
 
-        // ✅ ВОТ СЮДА ВСТАВЛЕНА ПРОВЕРКА type == null
         if (type == null) {
             throw new IllegalArgumentException("Template type cannot be null");
         }
