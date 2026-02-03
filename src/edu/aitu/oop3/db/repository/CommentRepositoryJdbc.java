@@ -3,13 +3,10 @@ package edu.aitu.oop3.db.repository;
 import edu.aitu.oop3.db.db.IDatabase;
 import edu.aitu.oop3.db.entity.Comment;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CommentRepositoryJdbc implements CommentRepository {
 
@@ -38,13 +35,51 @@ public class CommentRepositoryJdbc implements CommentRepository {
                 if (rs.next()) {
                     comment.setId(rs.getLong("id"));
                     Timestamp createdAt = rs.getTimestamp("created_at");
-                    comment.setCreatedAt(
-                            createdAt == null ? null : createdAt.toLocalDateTime()
-                    );
+                    comment.setCreatedAt(createdAt == null ? null : createdAt.toLocalDateTime());
                 }
             }
 
             return comment;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<Comment> findById(Long id) {
+        String sql = "select * from comments where id = ?";
+
+        try (Connection c = database.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRow(rs));
+                }
+                return Optional.empty();
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<Comment> findAll() {
+        String sql = "select * from comments order by id";
+        List<Comment> comments = new ArrayList<>();
+
+        try (Connection c = database.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                comments.add(mapRow(rs));
+            }
+            return comments;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -63,14 +98,7 @@ public class CommentRepositoryJdbc implements CommentRepository {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Timestamp createdAt = rs.getTimestamp("created_at");
-                    comments.add(new Comment(
-                            rs.getLong("id"),
-                            rs.getLong("task_id"),
-                            rs.getLong("user_id"),
-                            rs.getString("text"),
-                            createdAt == null ? null : createdAt.toLocalDateTime()
-                    ));
+                    comments.add(mapRow(rs));
                 }
             }
 
@@ -79,5 +107,17 @@ public class CommentRepositoryJdbc implements CommentRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Comment mapRow(ResultSet rs) throws SQLException {
+        Timestamp createdAt = rs.getTimestamp("created_at");
+
+        return new Comment(
+                rs.getLong("id"),
+                rs.getLong("task_id"),
+                rs.getLong("user_id"),
+                rs.getString("text"),
+                createdAt == null ? null : createdAt.toLocalDateTime()
+        );
     }
 }
