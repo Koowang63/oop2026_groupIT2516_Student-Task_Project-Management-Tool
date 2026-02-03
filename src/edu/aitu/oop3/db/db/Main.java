@@ -5,13 +5,10 @@ import edu.aitu.oop3.db.repository.*;
 import edu.aitu.oop3.db.service.*;
 
 public class Main {
+
     public static void main(String[] args) {
 
-        IDatabase database = new SupabaseDatabase(
-                System.getenv("DB_URL"),
-                System.getenv("DB_USER"),
-                System.getenv("DB_PASSWORD")
-        );
+        IDatabase database = new SupabaseDatabase();
 
         UserRepository userRepository = new UserRepositoryJdbc(database);
         ProjectRepository projectRepository = new ProjectRepositoryJdbc(database);
@@ -21,13 +18,11 @@ public class Main {
         UserService userService = new UserService(userRepository);
         ProjectService projectService = new ProjectService(projectRepository);
         TaskService taskService = new TaskService(taskRepository, projectRepository);
-        CommentService commentService = new CommentService(commentRepository);
 
         AppController controller = new AppController(
                 userService,
                 projectService,
-                taskService,
-                commentService
+                taskService
         );
 
         controller.run();
