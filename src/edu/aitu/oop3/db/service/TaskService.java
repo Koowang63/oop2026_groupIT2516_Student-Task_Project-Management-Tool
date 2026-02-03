@@ -11,6 +11,7 @@ import edu.aitu.oop3.db.repository.TaskRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Comparator;
 
 public class TaskService {
 
@@ -76,5 +77,11 @@ public class TaskService {
         if (from == TaskStatus.TODO) return to == TaskStatus.IN_PROGRESS || to == TaskStatus.CANCELED;
         if (from == TaskStatus.IN_PROGRESS) return to == TaskStatus.DONE || to == TaskStatus.CANCELED;
         return false;
+    }
+    public List<Task> getTasksByStatusSortedByDeadline(TaskStatus status) {
+        return taskRepository.findAll().stream()
+                .filter(t -> t.getStatus() == status)
+                .sorted(Comparator.comparing(Task::getDeadline, Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
     }
 }
